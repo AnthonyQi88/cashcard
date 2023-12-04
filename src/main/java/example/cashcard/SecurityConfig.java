@@ -15,8 +15,26 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 class SecurityConfig {
     
+    @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/cashcards/**")
+                        .authenticated())
+                .csrf(csrf -> csrf.disable())
+                .httpBasic(Customizer.withDefaults());
         return http.build();
+    }
+
+    @Bean
+    UserDetailsService testOnlyUsers(PasswordEncoder passwordEncoder) {
+        User.UserBuilder users = User.builder();
+        UserDetails sarah = users
+            .username("sarah1")
+            .password(passwordEncoder.encode("abc123"))
+            .roles() // No roles for now
+            .build();
+        return new InMemoryUserDetailsManager(sarah);
     }
 
     @Bean
